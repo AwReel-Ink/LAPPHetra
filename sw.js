@@ -3,8 +3,8 @@ const urlsToCache = [
   '/LAPPHetra/',
   '/LAPPHetra/index.html',
   '/LAPPHetra/manifest.json',
-  '/LAPPHetra/icon-192.png',
-  '/LAPPHetra/icon-512.png'
+  '/LAPPHetra/192.png',
+  '/LAPPHetra/512.png'
 ];
 
 // Installation
@@ -56,3 +56,4 @@ self.addEventListener('fetch', (event) => {
       })
   );
 });
+
