@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<!--
+LAPPHetra - Calcul des Heures de Chantier
+MIT License - Open Source
+https://awreel-ink.github.io/LAPPHetra/
+
+Copyright (c) 2025 LEROY Aurélien (AwReel-Ink)
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+-->
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calcul des Heures</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            padding-bottom: 80px;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+
+        .periode {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border: 2px solid #e9ecef;
+        }
+
+        .periode-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .periode-titre {
+            font-weight: bold;
+            color: #495057;
+            font-size: 16px;
+        }
+
+        .btn-supprimer {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .btn-supprimer:active {
+            transform: scale(0.95);
+        }
+
+        .time-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+            align-items: center;
+        }
+
+        .btn-time {
+            padding: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            min-height: 70px;
+        }
+
+        .btn-debut {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-debut:active {
+            background: #218838;
+            transform: scale(0.97);
+        }
+
+        .btn-fin {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-fin:active {
+            background: #c82333;
+            transform: scale(0.97);
+        }
+
+        .time-display {
+            text-align: center;
+            background: white;
+            padding: 10px;
+            border-radius: 10px;
+            border: 2px solid #dee2e6;
+        }
+
+        .time-input {
+            width: 100%;
+            text-align: center;
+            font-size: 16px;
+            font-weight: bold;
+            border: none;
+            padding: 5px;
+            color: #495057;
+        }
+
+        .time-input:focus {
+            outline: none;
+            background: #e7f3ff;
+        }
+
+        .duree {
+            font-size: 20px;
+            font-weight: bold;
+            color: #007bff;
+            margin-top: 5px;
+        }
+
+        .btn-add {
+            width: 100%;
+            padding: 18px;
+            font-size: 20px;
+            font-weight: bold;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            margin-bottom: 20px;
+            transition: all 0.3s;
+        }
+
+        .btn-add:active {
+            background: #0056b3;
+            transform: scale(0.98);
+        }
+
+        .section-total {
+            background: #fff3cd;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border: 2px solid #ffc107;
+        }
+
+        .label {
+            font-weight: bold;
+            color: #495057;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .input-travailleurs {
+            width: 100%;
+            padding: 15px;
+            font-size: 18px;
+            text-align: center;
+            border: 2px solid #dee2e6;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        .total-display {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            border: 2px solid #ffc107;
+        }
+
+        .total-label {
+            color: #856404;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .total-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #856404;
+        }
+
+        .btn-reset {
+            width: 100%;
+            padding: 18px;
+            font-size: 18px;
+            font-weight: bold;
+            background: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-reset:active {
+            background: #5a6268;
+            transform: scale(0.98);
+        }
+
+        .duree-totale-periodes {
+            background: #d1ecf1;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 20px;
+            border: 2px solid #17a2b8;
+        }
+
+        .duree-totale-periodes .label {
+            color: #0c5460;
+            margin-bottom: 5px;
+        }
+
+        .duree-totale-periodes .value {
+            font-size: 28px;
+            font-weight: bold;
+            color: #0c5460;
+        }
+
+        .footer-info {
+            max-width: 500px;
+            margin: 20px auto 0;
+            text-align: center;
+            color: white;
+            font-size: 13px;
+            line-height: 1.6;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+        }
+
+        .footer-info .emoji {
+            font-size: 16px;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .footer-info .version {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .footer-info .copyright {
+            font-size: 11px;
+            opacity: 0.9;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⏱️ Calcul des Heures</h1>
+        
+        <div id="periodes-container"></div>
+        
+        <button class="btn-add" onclick="ajouterPeriode()">➕ Ajouter une période</button>
+        
+        <div class="duree-totale-periodes">
+            <div class="label">Durée totale travaillée</div>
+            <div class="value" id="duree-totale">0h00</div>
+        </div>
+
+        <div class="section-total">
+            <div class="label">Nombre de travailleurs :</div>
+            <input type="number" class="input-travailleurs" id="nb-travailleurs" 
+                   value="1" min="1" oninput="calculerTotal()">
+            
+            <div class="total-display">
+                <div class="total-label">TEMPS CUMULÉ</div>
+                <div class="total-value" id="temps-cumule">0h00</div>
+            </div>
+        </div>
+
+        <button class="btn-reset" onclick="reinitialiser()">🔄 Réinitialiser</button>
+    </div>
+
+<div class="footer-info">
+    <div class="footer-info-emoji">ℹ️</div>
+    <div class="footer-version">
+        Version 1 - © 2025 - LEROY Aurélien
+    </div>
+    <div class="footer-license">
+        Licence MIT - 
+        <a href="https://github.com/AwReel-Ink/LAPPHetra/blob/main/LICENSE" 
+           target="_blank" 
+           style="color: white; text-decoration: underline;">
+            Code source
+        </a>
+    </div>
+</div>
+
+    <script>
+        let periodeCount = 0;
+
+        function formaterHeure(date) {
+            const heures = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            return `${heures}:${minutes}`;
+        }
+
+        function ajouterPeriode() {
+            periodeCount++;
+            const container = document.getElementById('periodes-container');
+            
+            const periodeDiv = document.createElement('div');
+            periodeDiv.className = 'periode';
+            periodeDiv.id = `periode-${periodeCount}`;
+            
+            const showDeleteBtn = periodeCount > 1 ? '' : 'style="visibility: hidden;"';
+            
+            periodeDiv.innerHTML = `
+                <div class="periode-header">
+                    <div class="periode-titre">Période ${periodeCount}</div>
+                    <button class="btn-supprimer" onclick="supprimerPeriode(${periodeCount})" ${showDeleteBtn}>
+                        ❌ Supprimer
+                    </button>
+                </div>
+                <div class="time-row">
+                    <button class="btn-time btn-debut" onclick="enregistrerDebut(${periodeCount})">
+                        DÉBUT
+                    </button>
+                    <div class="time-display">
+                        <input type="time" class="time-input" id="debut-${periodeCount}" 
+                               oninput="calculerDuree(${periodeCount})">
+                        <div class="duree" id="duree-${periodeCount}">--</div>
+                    </div>
+                    <button class="btn-time btn-fin" onclick="enregistrerFin(${periodeCount})">
+                        FIN
+                    </button>
+                </div>
+            `;
+            
+            container.appendChild(periodeDiv);
+            
+            // Afficher le bouton supprimer de la première période si on en ajoute une deuxième
+            if (periodeCount === 2) {
+                const firstPeriodeBtn = document.querySelector('#periode-1 .btn-supprimer');
+                if (firstPeriodeBtn) {
+                    firstPeriodeBtn.style.visibility = 'visible';
+                }
+            }
+        }
+
+        function supprimerPeriode(id) {
+            const periode = document.getElementById(`periode-${id}`);
+            if (periode) {
+                periode.remove();
+                calculerTotal();
+                
+                // Masquer le bouton supprimer s'il ne reste qu'une période
+                const periodes = document.querySelectorAll('.periode');
+                if (periodes.length === 1) {
+                    const btn = periodes[0].querySelector('.btn-supprimer');
+                    if (btn) btn.style.visibility = 'hidden';
+                }
+            }
+        }
+
+        function enregistrerDebut(id) {
+            const input = document.getElementById(`debut-${id}`);
+            input.value = formaterHeure(new Date());
+            calculerDuree(id);
+        }
+
+        function enregistrerFin(id) {
+            const input = document.getElementById(`fin-${id}`);
+            if (!input) {
+                // Créer l'input de fin s'il n'existe pas
+                const periodeDiv = document.getElementById(`periode-${id}`);
+                const timeRow = periodeDiv.querySelector('.time-row');
+                const timeDisplay = timeRow.querySelector('.time-display');
+                
+                const finInput = document.createElement('input');
+                finInput.type = 'time';
+                finInput.className = 'time-input';
+                finInput.id = `fin-${id}`;
+                finInput.style.marginTop = '5px';
+                finInput.oninput = () => calculerDuree(id);
+                
+                timeDisplay.appendChild(finInput);
+            }
+            
+            document.getElementById(`fin-${id}`).value = formaterHeure(new Date());
+            calculerDuree(id);
+        }
+
+        function calculerDuree(id) {
+            const debut = document.getElementById(`debut-${id}`).value;
+            const finInput = document.getElementById(`fin-${id}`);
+            const fin = finInput ? finInput.value : '';
+            const dureeDiv = document.getElementById(`duree-${id}`);
+            
+            if (debut && fin) {
+                const [hDebut, mDebut] = debut.split(':').map(Number);
+                const [hFin, mFin] = fin.split(':').map(Number);
+                
+                let minutes = (hFin * 60 + mFin) - (hDebut * 60 + mDebut);
+                
+                if (minutes < 0) {
+                    minutes += 24 * 60; // Gérer le passage à minuit
+                }
+                
+                const heures = Math.floor(minutes / 60);
+                const mins = minutes % 60;
+                
+                dureeDiv.textContent = `${heures}h${String(mins).padStart(2, '0')}`;
+            } else {
+                dureeDiv.textContent = '--';
+            }
+            
+            calculerTotal();
+        }
+
+        function calculerTotal() {
+            let totalMinutes = 0;
+            const periodes = document.querySelectorAll('.periode');
+            
+            periodes.forEach(periode => {
+                const id = periode.id.split('-')[1];
+                const debut = document.getElementById(`debut-${id}`).value;
+                const finInput = document.getElementById(`fin-${id}`);
+                const fin = finInput ? finInput.value : '';
+                
+                if (debut && fin) {
+                    const [hDebut, mDebut] = debut.split(':').map(Number);
+                    const [hFin, mFin] = fin.split(':').map(Number);
+                    
+                    let minutes = (hFin * 60 + mFin) - (hDebut * 60 + mDebut);
+                    if (minutes < 0) minutes += 24 * 60;
+                    
+                    totalMinutes += minutes;
+                }
+            });
+            
+            const heures = Math.floor(totalMinutes / 60);
+            const mins = totalMinutes % 60;
+            
+            document.getElementById('duree-totale').textContent = 
+                `${heures}h${String(mins).padStart(2, '0')}`;
+            
+            // Calcul du temps cumulé
+            const nbTravailleurs = parseInt(document.getElementById('nb-travailleurs').value) || 1;
+            const totalCumuleMinutes = totalMinutes * nbTravailleurs;
+            const heuresCumulees = Math.floor(totalCumuleMinutes / 60);
+            const minsCumulees = totalCumuleMinutes % 60;
+            
+            document.getElementById('temps-cumule').textContent = 
+                `${heuresCumulees}h${String(minsCumulees).padStart(2, '0')}`;
+        }
+
+        function reinitialiser() {
+            if (confirm('Voulez-vous vraiment tout réinitialiser ?')) {
+                document.getElementById('periodes-container').innerHTML = '';
+                periodeCount = 0;
+                document.getElementById('nb-travailleurs').value = 1;
+                ajouterPeriode();
+                calculerTotal();
+            }
+        }
+
+        // Initialiser avec une première période
+        ajouterPeriode();
+    </script>
+</body>
+</html>
