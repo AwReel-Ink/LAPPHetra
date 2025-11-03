@@ -16,13 +16,13 @@
   "description": "Application de calcul de cumul d'heures sur chantier, arrivée, départ et cumul d'heure par nombre de travailleurs",
   "icons": [
     {
-      "src": "icon-192.png",
+      "src": "192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "icon-512.png",
+      "src": "512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
