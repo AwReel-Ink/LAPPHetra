@@ -521,48 +521,9 @@ SOFTWARE.
         ajouterPeriode();
         }
     </script>
-    <!-- ✅ NOUVEAU CODE SERVICE WORKER ICI -->
-    <script>
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/LAPPHetra/sw.js')
-      .then((registration) => {
-        console.log('✅ Service Worker enregistré:', registration.scope);
-        
-        // Vérifier les mises à jour toutes les heures
-        setInterval(() => {
-          registration.update();
-        }, 3600000);
-        
-        // Écouter les mises à jour
-        registration.addEventListener('updatefound', () => {
-          const newWorker = registration.installing;
-          console.log('🔄 Nouvelle version détectée...');
-          
-          newWorker.addEventListener('statechange', () => {
-            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-              console.log('✅ Nouvelle version prête !');
-              // Optionnel: proposer de recharger
-              if (confirm('Nouvelle version disponible ! Recharger ?')) {
-                window.location.reload();
-              }
-            }
-          });
-        });
-      })
-      .catch((error) => {
-        console.error('❌ Erreur Service Worker:', error);
-      });
-  });
-  
-  // Recharger quand un nouveau SW prend le contrôle
-  navigator.serviceWorker.addEventListener('controllerchange', () => {
-    console.log('🔄 Nouveau Service Worker actif');
-  });
-}
-</script>
 </body>
 </html>
+
 
 
 
