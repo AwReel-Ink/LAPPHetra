@@ -1,83 +1,84 @@
-const CACHE_NAME = 'laphetra-v1.1'; // ⚠️ Changez la version pour forcer la mise à jour
+const CACHE_NAME = 'laphetra-v1.2';
 const urlsToCache = [
-  // URLs ABSOLUES depuis la racine de votre domaine
-  'https://awreel-ink.github.io/LAPPHetra/',
-  'https://awreel-ink.github.io/LAPPHetra/index.html',
-  'https://awreel-ink.github.io/LAPPHetra/manifest.json',
-  'https://awreel-ink.github.io/LAPPHetra/192.png',
-  'https://awreel-ink.github.io/LAPPHetra/512.png',
-  
-  // ⚠️ AJOUTEZ ces fichiers critiques :
-  'https://awreel-ink.github.io/LAPPHetra/sw.js'
+  './',              // ✅ Page d'accueil
+  './index.html',    // ✅ HTML principal
+  './manifest.json', // ✅ Manifest
+  './192.png',       // ✅ Icône 192x192
+  './512.png'        // ✅ Icône 512x512
 ];
 
-// Installation
-self.addEventListener('install', (event) => {
-  console.log('🔧 Service Worker: Installation v2...');
+// Installation : mise en cache initiale
+self.addEventListener('install', event => {
+  console.log('[SW] Installation LAPPHetra v1.2...');
   event.waitUntil(
     caches.open(CACHE_NAME)
-      .then((cache) => {
-        console.log('✅ Cache ouvert, ajout des fichiers...');
-        return cache.addAll(urlsToCache)
-          .then(() => console.log('✅ Tous les fichiers en cache !'))
-          .catch((err) => console.error('❌ Erreur cache:', err));
+      .then(cache => {
+        console.log('[SW] Mise en cache des fichiers');
+        return cache.addAll(urlsToCache);
+      })
+      .then(() => {
+        console.log('[SW] ✅ Tous les fichiers en cache !');
+        return self.skipWaiting(); // ✅ Active immédiatement
+      })
+      .catch(err => {
+        console.error('[SW] ❌ Erreur cache:', err);
       })
   );
-  // Force l'activation immédiate
-  self.skipWaiting();
 });
 
-// Activation
-self.addEventListener('activate', (event) => {
-  console.log('🚀 Service Worker: Activation v2...');
+// Activation : nettoyage des anciens caches
+self.addEventListener('activate', event => {
+  console.log('[SW] Activation LAPPHetra...');
   event.waitUntil(
-    caches.keys().then((cacheNames) => {
+    caches.keys().then(cacheNames => {
       return Promise.all(
-        cacheNames.map((cacheName) => {
+        cacheNames.map(cacheName => {
           if (cacheName !== CACHE_NAME) {
-            console.log('🗑️ Suppression ancien cache:', cacheName);
+            console.log('[SW] 🗑️ Suppression ancien cache:', cacheName);
             return caches.delete(cacheName);
           }
         })
       );
     })
+    .then(() => {
+      console.log('[SW] ✅ Service Worker activé !');
+      return self.clients.claim(); // ✅ Prend contrôle immédiatement
+    })
   );
-  // Prend le contrôle immédiatement
-  return self.clients.claim();
 });
 
-// Stratégie: Cache First, puis Network
-self.addEventListener('fetch', (event) => {
+// Interception des requêtes : Cache-First Strategy
+self.addEventListener('fetch', event => {
   event.respondWith(
     caches.match(event.request)
-      .then((cachedResponse) => {
-        if (cachedResponse) {
-          console.log('📦 Cache:', event.request.url);
-          return cachedResponse;
+      .then(response => {
+        if (response) {
+          console.log('[SW] 📦 Depuis cache:', event.request.url);
+          return response; // ✅ Depuis cache
         }
-
-        console.log('🌐 Network:', event.request.url);
+        
+        console.log('[SW] 🌐 Depuis réseau:', event.request.url);
         return fetch(event.request)
-          .then((response) => {
-            // Clone la réponse pour la mettre en cache
-            if (response.status === 200) {
-              const responseClone = response.clone();
-              caches.open(CACHE_NAME).then((cache) => {
+          .then(response => {
+            // Clone la réponse (requise pour la mettre en cache)
+            const responseClone = response.clone();
+            
+            // Met en cache les nouvelles ressources
+            caches.open(CACHE_NAME)
+              .then(cache => {
                 cache.put(event.request, responseClone);
               });
-            }
+            
             return response;
           })
-          .catch((error) => {
-            console.error('❌ Fetch error:', error);
-            // Fallback vers index.html pour les navigations
+          .catch(() => {
+            // ✅ Fallback si hors ligne ET pas en cache
+            console.log('[SW] ❌ HORS LIGNE:', event.request.url);
+            // Retourne la page d'accueil si navigation HTML
             if (event.request.mode === 'navigate') {
-              return caches.match('https://awreel-ink.github.io/LAPPHetra/index.html');
+              return caches.match('./index.html');
             }
-            throw error;
           });
       })
   );
 });
-
-
