@@ -1,4 +1,4 @@
-const CACHE_NAME = 'laphetra-v2'; // ⚠️ Changez la version pour forcer la mise à jour
+const CACHE_NAME = 'laphetra-v2.5'; // ⚠️ Changez la version pour forcer la mise à jour
 const urlsToCache = [
   // URLs ABSOLUES depuis la racine de votre domaine
   'https://awreel-ink.github.io/LAPPHetra/',
@@ -79,3 +79,4 @@ self.addEventListener('fetch', (event) => {
       })
   );
 });
+
